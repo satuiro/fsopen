@@ -7,6 +7,7 @@ import {
   useNavigate, 
   useMatch
 } from 'react-router-dom'
+import { useField } from './hooks'
 
 
 const Menu = () => {
@@ -61,24 +62,34 @@ const Footer = () => (
 )
 
 const CreateNew = ({ addNew, setNotification }) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
+  // const [content, setContent] = useState('')
+  // const [author, setAuthor] = useState('')
+  // const [info, setInfo] = useState('')
+  
+  // Implementing the custom hooks for exercise 7.4
+  const content = useField('text') 
+  const author = useField('text')
+  const info = useField('text')
+  let [cValue, aValue, iValue] = [content.value, author.value, info.value]
   const navigate = useNavigate()
+
+  const onReset = (event) => {
+    event.preventDefault()
+    content.reset()
+    author.reset()
+    info.reset()
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault()
     
     addNew({
-      content,
-      author,
-      info,
+      content: cValue, 
+      author: aValue,
+      info: iValue,
       votes: 0
     })
-    setNotification(`${content} has been created`)
-    setContent('')
-    setAuthor('')
-    setInfo('')
+    setNotification(`${cValue} has been created`)
     setTimeout(() => {
       setNotification(null)
     }, 5000)
@@ -86,24 +97,32 @@ const CreateNew = ({ addNew, setNotification }) => {
     
   }
 
+  const returnInputValue = (obj) => {
+    let {reset, ...neObj} = obj
+    return neObj
+  }
+  // console.log(cValue, aValue, iValue);
+
   return (
     <div>
       <h2>create a new anecdote</h2>
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          <input {...returnInputValue(content)} />
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input {...returnInputValue(author)} />
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e)=> setInfo(e.target.value)} />
+          <input {...returnInputValue(info)} />
         </div>
         <button type='submit'>create</button>
+        
       </form>
+      <button onClick={onReset}>reset</button>
     </div>
   )
 
